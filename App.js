@@ -30,11 +30,29 @@ export default class App extends React.Component {
     console.log('Component has mounted!');
   }
 
-  handleUpdateLocation = city => {
-    this.setState({
-      location: city,
+  handleUpdateLocation = async city => {
+    if (!city) return;
+    this.setState({ loading: true }, async () => {
+      try {
+        const locationId = await fetchLocationId(city);
+        const { location, weather, temperature } = await fetchWeather(
+        locationId,
+      );
+      this.setState({
+        loading: false,
+        error: false,
+        location,
+        weather,
+        temperature,
+        });
+      } catch (e) {
+        this.setState({
+          loading: false,
+          error: true,
+        });
+      }
     });
-  }
+  };    
 
   render() {
     const { loading, error, location, weather, temperature } = this.state;
